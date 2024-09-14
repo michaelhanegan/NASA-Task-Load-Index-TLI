@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
 
-def set_page_style(embedded=False):
+def set_page_style():
     # Define custom CSS for light and dark modes
     light_mode_css = """
     <style>
@@ -65,55 +65,51 @@ def set_page_style(embedded=False):
     </style>
     """
 
-    if not embedded:
-        # Add fixed header bar with theme selection
-        with stylable_container(
-            key="header",
-            css_styles="""
-                {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    z-index: 999;
-                    background-color: #262730;
-                    padding: 10px;
-                    display: flex;
-                    justify-content: flex-end;
-                }
-            """
-        ):
-            col1, col2, col3 = st.columns([1, 1, 1])
-            with col2:
-                theme = st.radio(
-                    "Theme",
-                    ["🌞", "🌙", "💻"],
-                    horizontal=True,
-                    label_visibility="collapsed",
-                )
-
-        if theme == "🌞":
-            st.markdown(light_mode_css, unsafe_allow_html=True)
-        elif theme == "🌙":
-            st.markdown(dark_mode_css, unsafe_allow_html=True)
-        else:
-            # System default (use Streamlit's default theme)
-            pass
-
-        # Add padding to the top of the page to account for the fixed header
-        st.markdown(
-            """
-            <style>
-            .main > div:first-child {
-                padding-top: 60px;
+    # Add fixed header bar with theme selection
+    with stylable_container(
+        key="header",
+        css_styles="""
+            {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 999;
+                background-color: #262730;
+                padding: 10px;
+                display: flex;
+                justify-content: flex-end;
             }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-    else:
-        # Use light mode CSS for embedded version
+        """
+    ):
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            theme = st.radio(
+                "Theme",
+                ["🌞", "🌙", "💻"],
+                horizontal=True,
+                label_visibility="collapsed",
+            )
+
+    if theme == "🌞":
         st.markdown(light_mode_css, unsafe_allow_html=True)
+    elif theme == "🌙":
+        st.markdown(dark_mode_css, unsafe_allow_html=True)
+    else:
+        # System default (use Streamlit's default theme)
+        pass
+
+    # Add padding to the top of the page to account for the fixed header
+    st.markdown(
+        """
+        <style>
+        .main > div:first-child {
+            padding-top: 60px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
     # Improve accessibility and add plus/minus icons
     st.markdown("""
@@ -136,4 +132,4 @@ def set_page_style(embedded=False):
     </style>
     """, unsafe_allow_html=True)
 
-    return "light" if embedded else theme
+    return theme
