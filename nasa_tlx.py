@@ -29,3 +29,28 @@ def get_dimension_impact(scores, weights=None):
     
     weighted_scores = [(dim, scores[dim] * weights[dim]) for dim in scores.keys()]
     return sorted(weighted_scores, key=lambda x: x[1], reverse=True)
+
+def pair_wise_comparison(dimensions):
+    """
+    Generate pair-wise comparison questions for TLX dimensions.
+    
+    :param dimensions: List of TLX dimensions
+    :return: List of tuples representing pair-wise comparisons
+    """
+    comparisons = []
+    for i, dim1 in enumerate(dimensions):
+        for dim2 in dimensions[i+1:]:
+            comparisons.append((dim1, dim2))
+    return comparisons
+
+def calculate_weights(pair_wise_results):
+    """
+    Calculate dimension weights based on pair-wise comparison results.
+    
+    :param pair_wise_results: Dictionary with (dim1, dim2) tuples as keys and selected dimension as values
+    :return: Dictionary of dimension weights
+    """
+    weights = {dim: 0 for dim in set(dim for pair in pair_wise_results.keys() for dim in pair)}
+    for (dim1, dim2), selected in pair_wise_results.items():
+        weights[selected] += 1
+    return weights
