@@ -8,12 +8,13 @@ from styles import set_page_style
 
 st.set_page_config(page_title="NASA Task Load Index", layout="wide")
 
-def save_assessment(name: str, scores: dict, weights: dict, overall_score: float):
+def save_assessment(name: str, task_description: str, scores: dict, weights: dict, overall_score: float):
     if 'assessments' not in st.session_state:
         st.session_state.assessments = []
     
     assessment = {
         'name': name,
+        'task_description': task_description,
         'scores': scores,
         'weights': weights,
         'overall_score': overall_score
@@ -35,6 +36,7 @@ def main():
         
         st.write("Selected Assessment Details:")
         st.write(f"Name: {selected_assessment['name']}")
+        st.write(f"Task Description: {selected_assessment['task_description']}")
         st.write(f"Overall Score: {selected_assessment['overall_score']:.2f}")
         
         # Display visualizations for the selected assessment
@@ -49,7 +51,8 @@ def main():
         st.write("You haven't created any assessments yet.")
 
     st.header("Create New Assessment")
-    new_assessment_name = st.text_input("Assessment Name")
+    new_assessment_name = st.text_input("Your Name")
+    task_description = st.text_area("Task Description", "Describe the task you're assessing...")
 
     # NASA TLX dimensions with descriptions
     tlx_dimensions = {
@@ -90,35 +93,38 @@ def main():
     # Calculate TLX score
     tlx_score = calculate_tlx_score(scores, weights)
 
-    # Display results
-    st.subheader("Results")
-    st.write(f"Overall Task Load Index Score: {tlx_score:.2f}")
-
-    # Display individual dimension scores and weights
-    st.write("Individual Dimension Scores and Weights:")
-    results_df = pd.DataFrame({
-        "Dimension": list(scores.keys()),
-        "Score": list(scores.values()),
-        "Weight": [weights[dim] for dim in scores.keys()]
-    })
-    st.dataframe(results_df)
-
-    # Visualizations
+    # Create summary window
+    st.header("Assessment Summary")
     col1, col2 = st.columns(2)
     with col1:
+        st.subheader("Task Information")
+        st.write(f"Name: {new_assessment_name}")
+        st.write(f"Task Description: {task_description}")
+        st.write(f"Overall Task Load Index Score: {tlx_score:.2f}")
+
+        # Display individual dimension scores and weights
+        st.subheader("Individual Dimension Scores and Weights:")
+        results_df = pd.DataFrame({
+            "Dimension": list(scores.keys()),
+            "Score": list(scores.values()),
+            "Weight": [weights[dim] for dim in scores.keys()]
+        })
+        st.dataframe(results_df)
+
+    with col2:
+        st.subheader("Visualizations")
         radar_fig = create_radar_chart(scores)
         st.plotly_chart(radar_fig)
-    with col2:
         bar_fig = create_bar_chart(scores)
         st.plotly_chart(bar_fig)
 
     # Save assessment
     if st.button("Save Assessment"):
-        if new_assessment_name:
-            save_assessment(new_assessment_name, scores, weights, tlx_score)
+        if new_assessment_name and task_description:
+            save_assessment(new_assessment_name, task_description, scores, weights, tlx_score)
             st.success("Assessment saved successfully!")
         else:
-            st.error("Please provide a name for the assessment")
+            st.error("Please provide your name and task description")
 
 if __name__ == "__main__":
     main()
